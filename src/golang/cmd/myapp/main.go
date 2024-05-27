@@ -11,8 +11,6 @@ type Message struct {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-
-
     w.Header().Set("Access-Control-Allow-Credentials", "true")
     w.Header().Set("Access-Control-Allow-Origin", "*")
     w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
