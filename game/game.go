@@ -94,38 +94,3 @@ func Make_Game(rows, cols int) Board {
         move_history: mh,
     }
 }
-
-
-/*
-func main() {
-
-    board := make_game(3, 3)
-    var won int
-    var err error
-    board.PrintBoard()
-    won, err = board.PlayMove(2, 0, 1)
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-    won, err = board.PlayMove(5, 0, 1)
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-    won, err = board.PlayMove(1, 1, 2)
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-    board.PrintBoard()
-    won, err = board.PlayMove(0, 1, 2)
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-    board.PrintBoard()
-    won, err = board.PlayMove(1, 1, 2)
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-    board.PrintBoard()
-    won, err = board.PlayMove(2, 1, 2)
-
-    if err != nil { fmt.Println(err) }
-    fmt.Println(won)
-
-    board.PrintBoard()
-}
-*/

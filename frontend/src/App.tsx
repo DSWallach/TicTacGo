@@ -1,6 +1,8 @@
 import React, {useState, useEffect } from 'react';
 import { Grid, Paper, Typography } from '@mui/material';
 import { styled, createTheme, ThemeProvider } from '@mui/system';
+import { AuthProvider, useAuth } from './Auth';
+import Login from './Login';
 
 
 
@@ -28,7 +30,7 @@ const StyledPaper = styled(Paper)(({theme}) => ({
 }));
 
 
-function App() {
+const App: React.FC = () => {
     const rows = 3;
     const cols = 3;
     const [player, setPlayer] = useState<number>(1);
@@ -40,84 +42,74 @@ function App() {
     const [board, setBoard] = useState<number[][]>([[]]);
     const [boardLoading, setBoardLoading] = useState<boolean>(true);
 
-    /*
-    funcV
-    let startingBoard: number[][] = [];
-    for (let i = 0; i < rows; i++) {
-        const row: number[] = [];
-        for (let j = 0; j < rows; j++) {
-            row.push(0);
-        }
-        startingBoard.push(row);
-    }
-
-    setBoard(startingBoard);
-     */
-
-    const setTile =(row: number, col: number, value: number) => {
-        const newBoard = [...board];
-        newBoard[row][col] = value;
-        setBoard(newBoard);
-    }
-
-    const handleSubmit = async(e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const res = await fetch('http://localhost:8080/playMove', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-
-                },
-                body: JSON.stringify({
-                    moveRow: moveRow,
-                    moveCol: moveCol,
-                    movePlayer: movePlayer
-                }),
-            });
-            const text = await res.text();
-            setResponse(text);
-        } catch (err) {
-            console.error("Error sending message: ", err);
-            setResponse('Error sending message');
-        }
-        fetchBoard();
-        player == 1 ? setPlayer(2) : setPlayer(1);
-    }
-
-
-    const handleClick = (row: number, col: number) => {
-        //alert(`Clicked on cell at row ${row}, column ${col}`);
-        console.log(`Clicked on cell at row ${row}, column ${col}`);
-        setMoveRow(row);
-        setMoveCol(col);
-        setMovePlayer(player);
-
-        setMessage(`Current Player: ${player}`)
-    };
-
-    const handleResetBoard = async () => {
-        try {
-            const res = await fetch('http://localhost:8080/resetBoard', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-
-                },
-            });
-            const text = await res.text();
-            setResponse(text);
-        } catch (err) {
-            console.error("Error sending message: ", err);
-            setResponse('Error sending message');
-        }
-        fetchBoard();
-    }
-
 
 
     const GameBoard: React.FC = () => {
+
         console.log(board);
+        const { user } = useAuth();
+        console.log('david: ', user);
+        const setTile =(row: number, col: number, value: number) => {
+            const newBoard = [...board];
+            newBoard[row][col] = value;
+            setBoard(newBoard);
+        }
+
+        const handleSubmit = async(e: React.FormEvent) => {
+            e.preventDefault();
+            try {
+                const res = await fetch('http://localhost:8080/playMove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+
+                    },
+                    body: JSON.stringify({
+                        moveRow: moveRow,
+                        moveCol: moveCol,
+                        movePlayer: movePlayer
+                    }),
+                });
+                const text = await res.text();
+                setResponse(text);
+            } catch (err) {
+                console.error("Error sending message: ", err);
+                setResponse('Error sending message');
+            }
+            fetchBoard();
+            player == 1 ? setPlayer(2) : setPlayer(1);
+        }
+
+
+        const handleClick = (row: number, col: number) => {
+            //alert(`Clicked on cell at row ${row}, column ${col}`);
+            console.log(`Clicked on cell at row ${row}, column ${col}`);
+            setMoveRow(row);
+            setMoveCol(col);
+            setMovePlayer(player);
+
+            setMessage(`Current Player: ${player}`)
+        };
+
+        const handleResetBoard = async () => {
+            try {
+                const res = await fetch('http://localhost:8080/resetBoard', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+
+                    },
+                });
+                const text = await res.text();
+                setResponse(text);
+            } catch (err) {
+                console.error("Error sending message: ", err);
+                setResponse('Error sending message');
+            }
+            fetchBoard();
+        }
+
+
         return (
             <div>
                 { boardLoading ?
@@ -141,6 +133,15 @@ function App() {
                             </Grid>
                     )
                 }
+                <form onSubmit={handleSubmit}>
+                    <p>
+                        <text>
+                            {`${moveRow}, ${moveCol}`}
+                        </text>
+                    </p>
+                    <button type='submit'>Send</button>
+                </form>
+                <button onClick={() => handleResetBoard()}> Reset Board </button>
             </div>
         )
     };
@@ -160,28 +161,40 @@ function App() {
     useEffect(() => { fetchBoard(); }, []);
 
     /*
-    useEffect(() => {
-        fetch('http://localhost:8080')
-        .then(response => response.json())
-        .then(data => setBoard(data))
-        .catch(error => console.error("Error fetching data: ", error))
-    }, []);
+       useEffect(() => {
+       fetch('http://localhost:8080')
+       .then(response => response.json())
+       .then(data => setBoard(data))
+       .catch(error => console.error("Error fetching data: ", error))
+       }, []);
      */
 
+
+    const Content: React.FC = () => {
+        const { isAuthenticated } = useAuth();
+        return (
+            <div>
+                {
+                    isAuthenticated ? (
+                        <div>
+                            <h1> {message} </h1>
+                            <GameBoard />
+                        </div>
+                    ) : (
+                        <div>
+                            <h1> </h1>
+                            <Login />
+                        </div>
+                    )
+                }
+            </div>
+        );
+    };
+
     return (
-        <div>
-            <h1> {message} </h1>
-            <GameBoard />
-            <form onSubmit={handleSubmit}>
-                <p>
-                    <text>
-                        {`${moveRow}, ${moveCol}`}
-                    </text>
-                </p>
-                <button type='submit'>Send</button>
-            </form>
-            <button onClick={() => handleResetBoard()}> Reset Board </button>
-        </div>
+        <AuthProvider>
+            <Content />
+        </AuthProvider>
     );
 }
 
