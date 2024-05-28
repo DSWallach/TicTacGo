@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
     "fmt"
@@ -12,8 +12,11 @@ type Board struct {
     move_history []int
 }
 
+func (b Board) GetBoard () [][]int{
+    return b.board
+}
 
-func (b Board) printBoard () {
+func (b Board) PrintBoard () {
     for i := 0; i < b.rows; i++ {
         for j := 0; j < b.cols; j++ {
             fmt.Printf("%d ", b.board[i][j])
@@ -23,18 +26,26 @@ func (b Board) printBoard () {
     fmt.Println()
 }
 
-func (b Board) playMove(row int, col int, color int) (int, error) {
+func (b Board) PlayMove(row int, col int, color int) (int, error) {
     if row >= b.rows {
         return -1, errors.New("Row Limit Exceeded")
     } else if col >= b.cols {
         return -1, errors.New("Column Limit Exceeded")
     } else {
         b.board[row][col] = color
-        return b.checkState(), nil
+        return b.CheckState(), nil
     }
 }
 
-func (b Board) checkState() (int) {
+func (b Board) ResetBoard() {
+    for i := range b.board {
+        for j := range b.board[i] {
+            b.board[i][j] = 0
+        }
+    }
+}
+
+func (b Board) CheckState() (int) {
     victor := -1
 
     // Check Rows
@@ -48,7 +59,6 @@ func (b Board) checkState() (int) {
         } else if sum == 2 * b.rows {
             victor = 2
         }
-
     }
 
     // Check Columns
@@ -68,7 +78,7 @@ func (b Board) checkState() (int) {
     return victor
 }
 
-func make_game(rows, cols int) Board {
+func Make_Game(rows, cols int) Board {
     board := make([][]int, rows)
     for i := range board {
         board[i] = make([]int, cols)
@@ -86,34 +96,36 @@ func make_game(rows, cols int) Board {
 }
 
 
+/*
 func main() {
 
     board := make_game(3, 3)
     var won int
     var err error
-    board.printBoard()
-    won, err = board.playMove(2, 0, 1)
+    board.PrintBoard()
+    won, err = board.PlayMove(2, 0, 1)
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
-    won, err = board.playMove(5, 0, 1)
+    won, err = board.PlayMove(5, 0, 1)
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
-    won, err = board.playMove(1, 1, 2)
+    won, err = board.PlayMove(1, 1, 2)
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
-    board.printBoard()
-    won, err = board.playMove(0, 1, 2)
+    board.PrintBoard()
+    won, err = board.PlayMove(0, 1, 2)
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
-    board.printBoard()
-    won, err = board.playMove(1, 1, 2)
+    board.PrintBoard()
+    won, err = board.PlayMove(1, 1, 2)
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
-    board.printBoard()
-    won, err = board.playMove(2, 1, 2)
+    board.PrintBoard()
+    won, err = board.PlayMove(2, 1, 2)
 
     if err != nil { fmt.Println(err) }
     fmt.Println(won)
 
-    board.printBoard()
+    board.PrintBoard()
 }
+*/
