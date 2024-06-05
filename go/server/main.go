@@ -92,13 +92,50 @@ func playMoveHandler(board *game.Board) http.HandlerFunc{
     }
 }
 
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    return func(w http.ResponseWriter, r *http.Request) {
+        w.Header().Set("Access-Control-Allow-Credentials", "true")
+        w.Header().Set("Access-Control-Allow-Origin", "*")
+        w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+        w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+        w.Header().Set("Access-Control-Max-Age", "86400")
+        w.Header().Set("Content-Type", "application/json")
+        w.WriteHeader(http.StatusOK)
+
+        if r.Method != http.MethodPost {
+            http.Error(w, "Invalid Request Method", http.StatusMethodNotAllowed)
+            return
+        }
+
+        var move PlayedMove
+        err := json.NewDecoder(r.Body).Decode(&move)
+        fmt.Println(move.String())
+        board.PlayMove(move.Row, move.Col, move.Player)
+        if err != nil {
+            http.Error(w, err.Error(), http.StatusBadRequest)
+            return
+        }
+
+        fmt.Printf("Got message: " + move.String() + "\n")
+        w.WriteHeader(http.StatusOK)
+        w.Write([]byte("Message Received"))
+        board.PrintBoard()
+    }
+}
+
+
 func main() {
+
+    //boardTable := make(map[string]game.Board)
+    //accountTable := make(map[string]string)
+
 
     board := game.Make_Game(3,3)
     board.PrintBoard()
     http.HandleFunc("/", boardHandler(&board))
     http.HandleFunc("/playMove", playMoveHandler(&board))
     http.HandleFunc("/resetBoard", resetBoardHandler(&board))
+    http.HandleFunc("/login", loginHandler)
 
     fmt.Println("Running ...")
     http.ListenAndServe(":8080", nil)
